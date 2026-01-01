@@ -1,5 +1,16 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Rajdhani } from "next/font/google";
 import "./globals.css";
+import Navbar from "./Components/Shared/Navbar";
+import Footer from "./Components/Shared/Footer";
+
+
+export const rajdhani = Rajdhani({
+  subsets: ['latin'],
+  weight: ['500', '600', '700'],
+  variable: '--font-rajdhani',
+})
+
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,11 +30,13 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <Navbar></Navbar>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
       </body>
+      <Footer></Footer>
     </html>
   );
 }
