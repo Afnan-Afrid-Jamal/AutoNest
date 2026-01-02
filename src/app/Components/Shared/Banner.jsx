@@ -54,7 +54,7 @@ const Banner = () => {
 
                     <div className="mt-8 flex gap-4">
                         <button className="btn btn-primary">Browse Cars</button>
-                        <button className="btn btn-outline text-white">Sell Your Car</button>
+                        <button className="btn btn-outline text-white hover:text-primary hover:border-2 hover:border-primary">Sell Your Car</button>
                     </div>
 
                 </div>

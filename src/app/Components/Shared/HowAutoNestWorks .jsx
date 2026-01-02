@@ -7,7 +7,7 @@ const HowAutoNestWorks = () => {
         <section className="py-20 px-4 bg-black">
             <div className="max-w-6xl mx-auto">
                 {/* Section Header */}
-                <SectionHeading>How AutoNest Works</SectionHeading>
+                <SectionHeading>How <span className='text-primary'>AutoNest</span> Works</SectionHeading>
                 <SubHeading>
                     A streamlined and transparent workflow designed separately for buyers and sellers
                 </SubHeading>

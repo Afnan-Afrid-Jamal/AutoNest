@@ -1,3 +1,4 @@
+import WhatOurCustomersSay from "./Components/HomePageComponents/WhatOurCustomersSay";
 import Banner from "./Components/Shared/Banner";
 import FAQSection from "./Components/Shared/FAQSection";
 import HowAutoNestWorks from "./Components/Shared/HowAutoNestWorks ";
@@ -13,6 +14,9 @@ export default function Home() {
       </div>
       <div>
         <HowAutoNestWorks></HowAutoNestWorks>
+      </div>
+      <div>
+        <WhatOurCustomersSay></WhatOurCustomersSay>
       </div>
       <div>
         <FAQSection></FAQSection>

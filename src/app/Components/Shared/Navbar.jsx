@@ -2,6 +2,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import WebsiteLogo from '../../../../public/Logo.png'
 import NavLink from './NavLink'
+import { MdLogin } from 'react-icons/md'
+import { FaUserPlus } from 'react-icons/fa'
 
 
 const Navbar = () => {
@@ -48,9 +50,17 @@ const Navbar = () => {
                 </div>
 
                 {/* RIGHT */}
-                <div className="navbar-end">
-                    <Link href="/login" className="btn btn-primary">
+
+                <div className="navbar-end flex gap-2 sm:gap-2">
+
+                    <Link href="/login" className="btn btn-xs md:btn-md">
+                        <MdLogin className="text-lg" />
                         Login
+                    </Link>
+
+                    <Link href="/register" className="btn btn-primary btn-xs md:btn-md">
+                        <FaUserPlus className="text-lg" />
+                        Register
                     </Link>
                 </div>
 
