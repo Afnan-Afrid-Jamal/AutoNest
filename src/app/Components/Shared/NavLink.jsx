@@ -9,7 +9,7 @@ const NavLink = ({ href, children }) => {
     return (
         <Link
             href={href}
-            className={`px-3 py-2 transition-colors duration-200 ${isActive && "border-b-2 border-primary text-red-500 font-semibold"
+            className={`mx-2 pt-2 transition-colors duration-200 ${isActive && "border-b-2 border-primary rounded-b-xl text-red-500 font-semibold"
                 }`}
         >
             {children}

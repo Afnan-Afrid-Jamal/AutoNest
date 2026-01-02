@@ -1,13 +1,12 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import WebsiteLogo from '../../../../public/Logo.png'
-import Navlink from './NavLink'
 import NavLink from './NavLink'
 
 
 const Navbar = () => {
     return (
-        <div className="bg-black">
+        <div className="bg-black sticky top-0 z-50">
             {/* Container */}
             <div className="navbar max-w-11/12 mx-auto text-white">
 

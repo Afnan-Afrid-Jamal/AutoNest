@@ -26,7 +26,7 @@ const FAQSection = () => {
     ];
 
     return (
-        <section className="bg-accent text-white py-20">
+        <section className="bg-secondary text-white py-20">
             <div className="max-w-7xl mx-auto px-6 text-center">
 
                 {/* Heading */}
