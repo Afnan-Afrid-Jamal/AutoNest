@@ -2,6 +2,7 @@ import { Geist, Geist_Mono, Rajdhani } from "next/font/google";
 import "./globals.css";
 import Navbar from "./Components/Shared/Navbar";
 import Footer from "./Components/Shared/Footer";
+import { ToastContainer } from "react-toastify";
 
 
 export const rajdhani = Rajdhani({
@@ -35,6 +36,7 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        <ToastContainer theme="dark" position="top-right" />
       </body>
       <Footer></Footer>
     </html>

@@ -28,7 +28,7 @@ const AllCars = async ({ searchParams }) => {
         .toArray();
 
     return (
-        <div className="min-h-screen bg-black">
+        <div className="min-h-screen bg-black pb-10">
             <SectionHeading>Find Your <span className='text-primary'>Dream</span> Car</SectionHeading>
             <SubHeading>Discover our exclusive collection of automobiles</SubHeading>
             <div className="max-w-11/12 mx-auto pt-12 px-1">
@@ -44,7 +44,7 @@ const AllCars = async ({ searchParams }) => {
                                     {/* Image Section */}
                                     <div className="relative h-56 w-full overflow-hidden">
                                         <Image
-                                            src={Array.isArray(car.images) ? car.images[0] : car.images}
+                                            src={car.images}
                                             alt={car.title}
                                             fill
                                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
