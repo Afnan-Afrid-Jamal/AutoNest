@@ -31,6 +31,81 @@ const AllCars = async ({ searchParams }) => {
         <div className="min-h-screen bg-black pb-10">
             <SectionHeading>Find Your <span className='text-primary'>Dream</span> Car</SectionHeading>
             <SubHeading>Discover our exclusive collection of automobiles</SubHeading>
+
+
+            <div className='flex items-center justify-between max-w-11/12 mx-auto'>
+
+
+                <div>
+
+                    <div className="dropdown border-2 border-red-500 rounded-xl">
+                        {/* Dropdown Button */}
+                        <div
+                            tabIndex={0}
+                            role="button"
+                            className="btn m-1 bg-black text-white border-2 border-gray-800 hover:border-red-600 hover:bg-black focus:border-red-600 transition-all duration-300 uppercase font-bold text-xs tracking-widest px-8 rounded-xl"
+                        >
+                            All Brands
+                        </div>
+
+                        {/* Dropdown Content */}
+                        <ul
+                            tabIndex={0}
+                            className="dropdown-content menu bg-black text-gray-300 rounded-xl z-[1] w-52 p-2 shadow-[0_0_20px_rgba(220,38,38,0.15)] border border-gray-800"
+                        >
+                            <li className="hover:bg-red-600 hover:text-white rounded-lg transition-colors">
+                                <a className="active:bg-red-700">Toyota</a>
+                            </li>
+                            <li className="hover:bg-red-600 hover:text-white rounded-lg transition-colors">
+                                <a className="active:bg-red-700">Honda</a>
+                            </li>
+                            <li className="hover:bg-red-600 hover:text-white rounded-lg transition-colors">
+                                <a className="active:bg-red-700">BMW</a>
+                            </li>
+                            <li className="hover:bg-red-600 hover:text-white rounded-lg transition-colors">
+                                <a className="active:bg-red-700">Others</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+
+
+
+
+                <div className="max-w-md">
+                    <div className="flex items-center">
+                        {/* Input Field Area */}
+                        <div className="flex-1">
+                            <label className="input border-2 border-gray-800 bg-black text-white focus-within:border-red-600 focus-within:outline-none h-12 flex items-center px-4 rounded-l-xl rounded-r-none transition-all">
+                                <input
+                                    type="email"
+                                    placeholder="mail@site.com"
+                                    required
+                                    className="bg-transparent w-full outline-none text-sm placeholder:text-gray-600"
+                                />
+                            </label>
+                            {/* Validator Hint (Optional) */}
+                            <div className="validator-hint hidden text-red-500 text-xs mt-1 ml-1">
+                                Enter valid email address
+                            </div>
+                        </div>
+
+                        {/* Join Button */}
+                        <button className="btn bg-red-600 hover:bg-red-700 border-none text-white font-bold uppercase text-xs tracking-widest h-12 px-6 rounded-r-xl rounded-l-none transition-all active:scale-95">
+                            Join
+                        </button>
+                    </div>
+                </div>
+
+
+
+
+
+
+            </div>
+
+
             <div className="max-w-11/12 mx-auto pt-12 px-1">
                 {getAllCars.length > 0 ? (
                     <>

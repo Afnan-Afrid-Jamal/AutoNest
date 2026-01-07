@@ -1,86 +1,150 @@
+import ImageGallery from '@/app/Components/Car Slider/ImageGallery';
 import { dbConnect } from '@/lib/dbConnect';
 import { ObjectId } from 'mongodb';
-import Image from 'next/image';
-import React from 'react';
+import {
+    FaGasPump, FaCogs, FaTachometerAlt,
+    FaMapMarkerAlt, FaWhatsapp, FaPhoneAlt,
+    FaCheckCircle, FaCalendarAlt, FaPalette,
+    FaCarSide,
+    FaCar
+} from 'react-icons/fa';
 
 const CarDetails = async ({ params }) => {
     const { id } = await params;
     const carCollection = dbConnect("AllCars");
-    const getCarDetails = await carCollection.findOne({ _id: new ObjectId(id) });
+    const car = await carCollection.findOne({ _id: new ObjectId(id) });
+
+    if (!car) return <div className="p-10 text-center text-red-600 font-bold">Car Not Found!</div>;
+
+    // সপেক্স এর জন্য হেল্পার কম্পোনেন্ট
+    const SpecItem = ({ icon: Icon, label, value }) => (
+        <div className="flex flex-col items-center gap-4 p-4 bg-[#1a1a1a] border border-gray-800 rounded-xl">
+            <div className="text-red-600 text-xl">
+                <Icon />
+            </div>
+            <div>
+                <p className="text-xs text-center text-gray-500 uppercase font-bold tracking-wider">{label}</p>
+                <p className="text-white text-center font-semibold">{value || "N/A"}</p>
+            </div>
+        </div>
+    );
 
     return (
-        <div className="min-h-screen bg-black text-gray-200 p-8 font-sans mb-10">
-            <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-8">
+        <div className='bg-black'>
+            <div className="min-h-screen text-white pb-20 max-w-11/12 mx-auto">
 
-                {/* Image Section */}
-                <div className="relative md:w-1/2 flex justify-center items-center">
-                    <Image
-                        src={getCarDetails?.images}
-                        alt={getCarDetails?.title}
-                        width={600}
-                        height={400}
-                        className="rounded-xl shadow-[0_0_50px_rgba(220,38,38,0.3)] transition-transform duration-500 hover:scale-105"
-                        style={{ objectFit: 'cover' }}
-                    />
-                    <div className="absolute top-4 left-4 bg-red-600 text-black px-4 py-1 text-sm font-bold tracking-widest rounded">
-                        Posted: {getCarDetails?.createdAt}
+                {/* ১. টপ হেডার (টাইটেল ও প্রাইস) - added extra padding and margin */}
+                <div className="bg-[#111] border-b border-red-900/30 pt-16 pb-12 mb-12">
+                    <div className="container mx-auto px-4 lg:px-10">
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+                            <div>
+                                <span className="text-red-600 font-bold uppercase tracking-widest text-sm">Listing ID: {car._id.toString().slice(-6)}</span>
+                                <h1 className="text-3xl md:text-5xl font-black uppercase italic mt-3 leading-none">
+                                    {car.year} {car.brand} <span className="text-red-600">{car.model}</span>
+                                </h1>
+                                <div className="flex items-center gap-4 mt-6 text-gray-400">
+                                    <span className="flex items-center gap-2"><FaMapMarkerAlt className="text-red-500" /> {car.locationCity}, Bangladesh</span>
+                                    <span className="h-4 w-px bg-gray-700"></span>
+                                    <span className="bg-red-600 text-white text-[10px] px-2 py-0.5 rounded font-bold uppercase italic">{car.condition}</span>
+                                </div>
+                            </div>
+                            <div className="bg-red-600 p-6 rounded-tl-3xl rounded-br-3xl inline-block shadow-lg">
+                                <p className="text-xs text-black font-black uppercase mb-1">Asking Price</p>
+                                <p className="text-3xl font-black text-white">৳ {car.price?.toLocaleString()}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                {/* Details Section */}
-                <div className="md:w-1/2 bg-black rounded-xl p-8 border border-red-500 shadow-lg flex flex-col justify-between">
-                    <div className="break-words">
-                        <h1 className="text-4xl md:text-5xl font-bold text-red-600 mb-3  uppercase break-words">
-                            {getCarDetails?.title}
-                        </h1>
-                        <p className="text-gray-300 font-semibold mb-6 uppercase tracking-wide text-sm md:text-base wrap-break-word">
-                            {getCarDetails?.brand} • {getCarDetails?.model} • {getCarDetails?.year}
-                        </p>
+                <div className="container mx-auto px-4 lg:px-10">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
 
-                        <div className="text-3xl md:text-4xl font-bold text-red-500 mb-6 break-words">
-                            ৳ {getCarDetails?.price}
-                            {getCarDetails?.priceNegotiable && (
-                                <span className="text-sm md:text-base text-gray-300 ml-2 break-words">(Negotiable)</span>
-                            )}
-                        </div>
+                        {/* বাম পাশ (images and description) - ৮ কলাম */}
+                        <div className="lg:col-span-8 space-y-16">
 
-                        <div className="flex justify-between text-sm md:text-base mb-6 break-words">
-                            <div className="border-l-4 border-red-600 pl-3 break-words"><span className="text-gray-300 uppercase text-xs md:text-sm">Condition</span><br /><span className="font-semibold text-primary text-lg">{getCarDetails?.condition}</span></div>
-                            <div className="border-l-4 border-red-600 pl-3 break-words"><span className="text-gray-300 uppercase text-xs md:text-sm">Mileage</span><br /><span className="font-semibold text-primary text-lg">{getCarDetails?.mileage} km</span></div>
-                            <div className="border-l-4 border-red-600 pl-3 break-words"><span className="text-gray-300 uppercase text-xs md:text-sm">Fuel Type</span><br /><span className="font-semibold text-primary text-lg">{getCarDetails?.fuelType}</span></div>
-                            <div className="border-l-4 border-red-600 pl-3 break-words"><span className="text-gray-300 uppercase text-xs md:text-sm">Transmission</span><br /><span className="font-semibold text-primary text-lg">{getCarDetails?.transmission}</span></div>
-                            <div className="border-l-4 border-red-600 pl-3 break-words"><span className="text-gray-300 uppercase text-xs md:text-sm">Engine Capacity</span><br /><span className="font-semibold text-primary text-lg">{getCarDetails?.engineCapacity}</span></div>
-                            <div className="border-l-4 border-red-600 pl-3 break-words"><span className="text-gray-300 uppercase text-xs md:text-sm">Color</span><br /><span className="font-semibold text-primary text-lg">{getCarDetails?.color}</span></div>
-                        </div>
-
-                        <div className="mt-6 border-t border-red-600/30 pt-4 flex justify-between text-sm md:text-base mb-6 break-words">
-                            <div>
-                                <p className="text-gray-300 uppercase text-xs md:text-sm tracking-wide break-words">Location</p>
-                                <p className="font-semibold  text-primary text-lg break-words">{getCarDetails?.locationCity}, {getCarDetails?.locationCountry}</p>
+                            {/* Image Gallery Section */}
+                            <div className="bg-[#111] rounded-3xl overflow-hidden border border-gray-800 shadow-2xl mb-12">
+                                <ImageGallery images={car.images} title={car.title} />
                             </div>
-                            <div className="text-right break-words">
-                                <p className="text-gray-300 uppercase text-xs md:text-sm tracking-wide break-words">Status</p>
-                                <p className="text-red-500 font-bold uppercase break-words  text-primary text-lg">{getCarDetails?.status}</p>
+
+                            {/* Specs Grid Section - added vertical padding */}
+                            <div className="py-10 border-y border-gray-800/50">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <SpecItem icon={FaCarSide} label="Brand" value={car?.brand} />
+                                    <SpecItem icon={FaCar} label="Model" value={car?.model} />
+                                    <SpecItem icon={FaTachometerAlt} label="Mileage" value={`${car.mileage?.toLocaleString()} KM`} />
+                                    <SpecItem icon={FaGasPump} label="Fuel Type" value={car.fuelType} />
+                                    <SpecItem icon={FaCogs} label="Transmission" value={car.transmission} />
+                                    <SpecItem icon={FaCalendarAlt} label="Year" value={car.year} />
+                                    <SpecItem icon={FaPalette} label="Color" value={car.color} />
+                                    <SpecItem icon={FaCheckCircle} label="Engine" value={car.engineCapacity} />
+                                </div>
                             </div>
-                        </div>
 
-                        <div className="mb-6 break-words">
-                            <p className="text-gray-300 text-xs md:text-sm uppercase mb-2 tracking-wide break-words">Description</p>
-                            <p className="text-gray-300 leading-relaxed text-sm md:text-base break-words text-primary text-lg">
-                                {getCarDetails?.description}
-                            </p>
-                        </div>
-
-                        {/* Seller Info */}
-                        <div className="bg-gradient-to-r from-black to-gray-900 border-2 border-red-600 rounded-xl p-6 shadow-[0_0_30px_rgba(220,38,38,0.25)] mb-6 break-words">
-                            <p className="text-red-500 uppercase text-xs md:text-sm tracking-widest mb-4 font-bold break-words">Seller Information</p>
-                            <div className="space-y-2 text-sm md:text-base break-words">
-                                <p><span className="text-gray-300 font-normal">Name:</span> <span className="font-semibold break-words text-primary text-lg">{getCarDetails?.sellerName || 'John Doe'}</span></p>
-                                <p><span className="text-gray-300 font-normal">Phone:</span> <span className="font-semibold break-words text-primary text-lg">{getCarDetails?.sellerPhone || '+8801XXXXXXXXX'}</span></p>
-                                <p><span className="text-gray-300 font-normal">Email:</span> <span className="font-semibold break-words text-primary text-lg">{getCarDetails?.sellerEmail || 'seller@email.com'}</span></p>
+                            {/* Description Section - added extra margin-top */}
+                            <div className="bg-[#111] p-10 rounded-3xl border border-gray-800 mt-12 shadow-xl">
+                                <h3 className="text-2xl px-2 font-bold mb-8 flex items-center gap-4">
+                                    Details Information
+                                </h3>
+                                <p className="text-gray-400 px-2 text-lg leading-relaxed whitespace-pre-line">
+                                    {car.description}
+                                </p>
                             </div>
                         </div>
 
+                        {/* ডান পাশ (Seller and Call to Action) - ৪ কলাম (Sticky) */}
+                        <div className="lg:col-span-4">
+                            <div className="sticky top-10 space-y-8">
+
+                                {/* Seller Card */}
+                                <div className="bg-[#111] p-8 rounded-3xl border border-red-600/20 shadow-xl overflow-hidden relative">
+                                    <div className="absolute top-0 right-0 bg-red-600 text-white px-4 py-1 text-[10px] font-bold uppercase tracking-tighter">Verified</div>
+
+                                    <h4 className="text-gray-500 uppercase text-xs font-bold tracking-widest mb-8">Listed By</h4>
+                                    <div className="flex items-center gap-5 mb-10">
+                                        <div className="w-20 h-20 bg-red-600 rounded-full flex items-center justify-center text-white text-3xl font-black italic shadow-lg shadow-red-600/20">
+                                            {car.sellerName?.charAt(0) || "S"}
+                                        </div>
+                                        <div>
+                                            <h5 className="text-2xl font-bold text-white uppercase">{car.sellerName}</h5>
+                                            <p className="text-gray-500 text-sm">Joined {car.createdAt?.split('-')[0]}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-5">
+                                        {car.sellerPhone ? (
+                                            <>
+                                                <a
+                                                    href={`tel:${car.sellerPhone}`}
+                                                    className="flex items-center justify-center gap-3 bg-white text-black py-5 rounded-xl font-black hover:bg-red-600 hover:text-white transition-all duration-300 group"
+                                                >
+                                                    <FaPhoneAlt className="group-hover:animate-bounce" /> {car.sellerPhone}
+                                                </a>
+                                                <a
+                                                    href={`https://wa.me/${car.sellerPhone?.replace(/\+/g, '')}`}
+                                                    target="_blank"
+                                                    className="flex items-center justify-center gap-3 bg-[#25D366] text-white py-5 rounded-xl font-black hover:opacity-90 transition-all shadow-lg"
+                                                >
+                                                    <FaWhatsapp size={24} /> WhatsApp Message
+                                                </a>
+                                            </>
+                                        ) : (
+                                            <p className="text-center text-gray-500 italic py-4">Phone number not provided</p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Safety Tips */}
+                                <div className="p-8 border border-gray-800 rounded-3xl bg-black/40">
+                                    <h5 className="text-red-500 font-bold mb-4 flex items-center gap-2 italic underline text-sm uppercase">Safety Tips for Buyers:</h5>
+                                    <ul className="text-xs text-gray-500 space-y-3 list-disc pl-5 italic">
+                                        <li>Check the car in person before paying.</li>
+                                        <li>Test drive the car in a safe area.</li>
+                                        <li>Verify all legal documents carefully.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
 
                     </div>
                 </div>

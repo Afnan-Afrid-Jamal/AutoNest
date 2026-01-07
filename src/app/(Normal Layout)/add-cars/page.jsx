@@ -3,46 +3,86 @@ import React, { useState } from 'react';
 import { uploadImage } from '@/lib/Utils/uploadPhoto';
 import { createCar } from '@/lib/Utils/actions/carActions';
 import { toast } from 'react-toastify';
-import { FaCar, FaUpload } from 'react-icons/fa';
+import { FaCar, FaUpload, FaTimes } from 'react-icons/fa';
 
 const AddCarForm = () => {
     const [uploading, setUploading] = useState(false);
-    const [selectedImage, setSelectedImage] = useState(null);
+    const [selectedImages, setSelectedImages] = useState([]);
+    const [imageFiles, setImageFiles] = useState([]);
 
-    const handleImagePreview = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setSelectedImage(reader.result);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
+    // Maximum image limit
+    const MAX_IMAGES = 3;
+    const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const form = e.target;
-        const imageFile = form.imageFile.files[0];
+    const handleImageChange = (e) => {
+        const files = Array.from(e.target.files);
 
-        if (!imageFile) {
-            toast.warn("Please select an image", {
+        // ১. টোটাল সংখ্যা চেক করা
+        if (imageFiles.length + files.length > MAX_IMAGES) {
+            toast.error(`You can only upload a maximum of ${MAX_IMAGES} images.`, {
                 position: "top-center",
                 theme: "dark",
             });
             return;
         }
 
-        try {
-            setUploading(true);
-
-            const imageUrl = await uploadImage(imageFile);
-
-            if (!imageUrl) {
-                toast.error("Image upload failed!", {
+        files.forEach(file => {
+            // নতুন লজিক: ১ মেগাবাইট সাইজ চেক করা
+            if (file.size > MAX_FILE_SIZE) {
+                toast.error(`"${file.name}" is too large! Maximum size is 1MB.`, {
                     position: "top-center",
                     theme: "dark",
                 });
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+
+                img.onload = () => {
+                    // ২. ল্যান্ডস্কেপ ভ্যালিডেশন (চওড়া কি না চেক করা)
+                    if (img.width > img.height) {
+                        setSelectedImages((prev) => [...prev, event.target.result]);
+                        setImageFiles((prev) => [...prev, file]);
+                    } else {
+                        toast.error(`"${file.name}" is not a landscape image!`, {
+                            position: "top-center",
+                            theme: "dark",
+                        });
+                    }
+                };
+            };
+
+            reader.readAsDataURL(file);
+        });
+    };
+
+    const removeImage = (index) => {
+        setSelectedImages((prev) => prev.filter((_, i) => i !== index));
+        setImageFiles((prev) => prev.filter((_, i) => i !== index));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const form = e.target;
+
+        if (imageFiles.length === 0) {
+            toast.warn("Please select at least one image", { position: "top-center", theme: "dark" });
+            return;
+        }
+
+        try {
+            setUploading(true);
+
+            // ৩. ইমেজ আপলোড লজিক
+            const uploadPromises = imageFiles.map(file => uploadImage(file));
+            const imageUrls = await Promise.all(uploadPromises);
+
+            if (imageUrls.includes(null)) {
+                toast.error("Image upload failed!", { position: "top-center", theme: "dark" });
                 return;
             }
 
@@ -62,7 +102,11 @@ const AddCarForm = () => {
                 locationCountry: form.locationCountry.value,
                 locationCity: form.locationCity.value,
                 description: form.description.value,
-                images: imageUrl,
+                images: imageUrls,
+                sellerId: "001",
+                sellerName: "user",
+                sellerEmail: "afnan@gmail.com",
+                sellerPhone: "01444444444444",
                 status: "pending",
                 createdAt: new Date().toLocaleString('en-GB'),
             };
@@ -70,25 +114,17 @@ const AddCarForm = () => {
             const response = await createCar(carData);
 
             if (response.success) {
-                toast.success(response.message, {
-                    position: "top-center",
-                    theme: "dark",
-                });
+                toast.success(response.message, { position: "top-center", theme: "dark" });
                 form.reset();
-                setSelectedImage(null);
+                setSelectedImages([]);
+                setImageFiles([]);
             } else {
-                toast.error(response.message, {
-                    position: "top-center",
-                    theme: "dark",
-                });
+                toast.error(response.message, { position: "top-center", theme: "dark" });
             }
 
         } catch (error) {
             console.error(error);
-            toast.error("An error occurred! Please try again.", {
-                position: "top-center",
-                theme: "dark",
-            });
+            toast.error("Something went wrong!", { position: "top-center", theme: "dark" });
         } finally {
             setUploading(false);
         }
@@ -96,268 +132,170 @@ const AddCarForm = () => {
 
     return (
         <div className="min-h-screen bg-black pb-15 px-4 relative overflow-hidden">
-            {/* Animated Background */}
-            <div className="absolute inset-0">
-                <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-red-600 opacity-5 blur-3xl rounded-full animate-pulse"></div>
-                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-red-800 opacity-5 blur-3xl rounded-full animate-pulse"></div>
-            </div>
+            <div className="absolute inset-0"></div>
 
-            <div className="max-w-5xl mx-auto relative z-10">
-                {/* Header */}
+            <div className="max-w-5xl mx-auto relative z-10 py-10">
                 <div className="text-center mb-12">
-                    <div className="inline-flex items-center gap-3 mb-4">
-                        <FaCar className="text-5xl text-red-600" />
-                    </div>
-                    <h2 className="text-5xl font-black text-white uppercase mb-3 tracking-tight">
+                    <FaCar className="text-5xl text-red-600 mx-auto mb-4" />
+                    <h2 className="text-5xl font-black text-white uppercase tracking-tight">
                         List Your <span className="text-red-600">Vehicle</span>
                     </h2>
-                    <p className="text-gray-400 text-lg">Fill in the details to get your car approved and listed</p>
                 </div>
 
-                {/* Form Card */}
-                <div className="relative rounded-2xl border-2 border-red-600/30 p-8 md:p-12 overflow-hidden transition-all duration-500 hover:border-red-500">
-                    <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-black"></div>
+                <div className="relative rounded-2xl border-2 border-red-600/30 p-8 md:p-12 bg-gradient-to-br from-gray-600 to-black shadow-2xl">
+                    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
 
-                    <form onSubmit={handleSubmit} className="relative z-10">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* Car Title */}
-                            <div className="md:col-span-2">
-                                <label className="block text-red-600 text-sm font-bold mb-2 uppercase tracking-wide">Car Title</label>
-                                <input
-                                    name="title"
-                                    type="text"
-                                    placeholder="e.g. Toyota Corolla 2020"
-                                    required
-                                    className="w-full bg-black border-2 border-gray-800 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:border-red-600 outline-none transition-all"
-                                />
+                        <div className="md:col-span-2">
+                            <label className="block text-red-600 text-sm font-bold mb-2 uppercase tracking-wide">Car Title</label>
+                            <input name="title" type="text" required placeholder="e.g. Toyota Corolla Altis 2022 for sale" className="w-full bg-black border-2 border-gray-800 rounded-lg px-4 py-3 text-white focus:border-red-600 outline-none transition-all" />
+                        </div>
+
+                        <div>
+                            <label className="block text-red-600 text-sm font-bold mb-2 uppercase tracking-wide">Brand</label>
+                            <input name="brand" type="text" required placeholder="e.g. Toyota" className="w-full bg-black border-2 border-gray-800 rounded-lg px-4 py-3 text-white focus:border-red-600 outline-none transition-all" />
+                        </div>
+                        <div>
+                            <label className="block text-red-600 text-sm font-bold mb-2 uppercase tracking-wide">Model</label>
+                            <input name="model" type="text" required placeholder="e.g. Corolla" className="w-full bg-black border-2 border-gray-800 rounded-lg px-4 py-3 text-white focus:border-red-600 outline-none transition-all" />
+                        </div>
+                        <div>
+                            <label className="block text-red-600 text-sm font-bold mb-2 uppercase tracking-wide">Year</label>
+                            <input name="year" type="number" required placeholder="e.g. 2022" className="w-full bg-black border-2 border-gray-800 rounded-lg px-4 py-3 text-white focus:border-red-600 outline-none transition-all" />
+                        </div>
+                        <div>
+                            <label className="block text-red-600 text-sm font-bold mb-2 uppercase tracking-wide">Price (৳)</label>
+                            <input name="price" type="number" required placeholder="e.g. 2500000" className="w-full bg-black border-2 border-gray-800 rounded-lg px-4 py-3 text-white focus:border-red-600 outline-none transition-all" />
+                        </div>
+                        <div>
+                            <label className="block text-red-600 text-sm font-bold mb-2 uppercase tracking-wide">Condition</label>
+                            <select name="condition" className="w-full bg-black border-2 border-gray-800 rounded-lg px-4 py-3 text-white focus:border-red-600 outline-none transition-all">
+                                <option value="" disabled selected>Select Condition</option>
+                                <option value="Used">Used</option>
+                                <option value="New">New</option>
+                                <option value="Reconditioned">Reconditioned</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-red-600 text-sm font-bold mb-2 uppercase tracking-wide">Fuel Type</label>
+                            <select name="fuelType" className="w-full bg-black border-2 border-gray-800 rounded-lg px-4 py-3 text-white focus:border-red-600 outline-none transition-all">
+                                <option value="" disabled selected>Select Fuel Type</option>
+                                <option value="Petrol">Petrol</option>
+                                <option value="Diesel">Diesel</option>
+                                <option value="Octane">Octane</option>
+                                <option value="Hybrid">Hybrid</option>
+                                <option value="Electric">Electric</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-red-600 text-sm font-bold mb-2 uppercase tracking-wide">Transmission</label>
+                            <select name="transmission" className="w-full bg-black border-2 border-gray-800 rounded-lg px-4 py-3 text-white focus:border-red-600 outline-none transition-all">
+                                <option value="" disabled selected>Select Transmission</option>
+                                <option value="Automatic">Automatic</option>
+                                <option value="Manual">Manual</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-red-600 text-sm font-bold mb-2 uppercase tracking-wide">Mileage (km)</label>
+                            <input name="mileage" type="number" required placeholder="e.g. 15000" className="w-full bg-black border-2 border-gray-800 rounded-lg px-4 py-3 text-white focus:border-red-600 outline-none transition-all" />
+                        </div>
+                        <div>
+                            <label className="block text-red-600 text-sm font-bold mb-2 uppercase tracking-wide">Engine Capacity</label>
+                            <input name="engineCapacity" type="text" required placeholder="e.g. 1500cc" className="w-full bg-black border-2 border-gray-800 rounded-lg px-4 py-3 text-white focus:border-red-600 outline-none transition-all" />
+                        </div>
+                        <div>
+                            <label className="block text-red-600 text-sm font-bold mb-2 uppercase tracking-wide">Color</label>
+                            <input name="color" type="text" required placeholder="e.g. Pearl White" className="w-full bg-black border-2 border-gray-800 rounded-lg px-4 py-3 text-white focus:border-red-600 outline-none transition-all" />
+                        </div>
+                        <div>
+                            <label className="block text-red-600 text-sm font-bold mb-2 uppercase tracking-wide">Country</label>
+                            <input name="locationCountry" type="text" defaultValue="Bangladesh" placeholder="Country" className="w-full bg-black border-2 border-gray-800 rounded-lg px-4 py-3 text-white focus:border-red-600 outline-none transition-all" />
+                        </div>
+                        <div>
+                            <label className="block text-red-600 text-sm font-bold mb-2 uppercase tracking-wide">City</label>
+                            <input name="locationCity" type="text" required placeholder="e.g. Dhaka" className="w-full bg-black border-2 border-gray-800 rounded-lg px-4 py-3 text-white focus:border-red-600 outline-none transition-all" />
+                        </div>
+
+                        {/* Image Section */}
+                        <div className="md:col-span-2">
+                            <div className="flex justify-between items-center mb-1">
+                                <label className="text-red-600 text-sm font-bold uppercase tracking-wide">Car Photos (Max 3)</label>
+                                <span className={`text-xs font-bold ${imageFiles.length === MAX_IMAGES ? 'text-red-500' : 'text-gray-500'}`}>
+                                    {imageFiles.length} / {MAX_IMAGES} Selected
+                                </span>
                             </div>
 
-                            {/* Brand */}
-                            <div>
-                                <label className="block text-red-600 text-sm font-bold mb-2 uppercase tracking-wide">Brand</label>
-                                <input
-                                    name="brand"
-                                    type="text"
-                                    placeholder="Toyota"
-                                    required
-                                    className="w-full bg-black border-2 border-gray-800 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:border-red-600 outline-none transition-all"
-                                />
-                            </div>
+                            <p className="text-gray-500 text-[10px] md:text-[11px] uppercase tracking-widest mb-4 font-bold flex flex-wrap items-center gap-3 gap-y-2">
+                                <span className="flex gap-2">
 
-                            {/* Model */}
-                            <div>
-                                <label className="block text-red-600 text-sm font-bold mb-2 uppercase tracking-wide">Model</label>
-                                <input
-                                    name="model"
-                                    type="text"
-                                    placeholder="Corolla"
-                                    required
-                                    className="w-full bg-black border-2 border-gray-800 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:border-red-600 outline-none transition-all"
-                                />
-                            </div>
+                                    Recommended: <span className="text-white">1200 x 800 px </span>
+                                </span>
+                                <span className="hidden sm:inline text-gray-700">•</span>
+                                <span> Max: <span className="text-white">1500 x 1000 </span></span>
+                                <span className="hidden sm:inline text-gray-700">•</span>
+                                <span> Ratio <span className="text-white">3:2 Landscape </span></span>
+                                <span className="hidden sm:inline text-gray-700">•</span>
+                                <span> Max Size <span className="text-white">1MB </span></span>
+                            </p>
 
-                            {/* Year */}
-                            <div>
-                                <label className="block text-red-600 text-sm font-bold mb-2 uppercase tracking-wide">Year</label>
-                                <input
-                                    name="year"
-                                    type="number"
-                                    placeholder="2020"
-                                    required
-                                    className="w-full bg-black border-2 border-gray-800 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:border-red-600 outline-none transition-all"
-                                />
-                            </div>
-
-                            {/* Price */}
-                            <div>
-                                <label className="block text-red-600 text-sm font-bold mb-2 uppercase tracking-wide">Price (৳)</label>
-                                <input
-                                    name="price"
-                                    type="number"
-                                    placeholder="18500"
-                                    required
-                                    className="w-full bg-black border-2 border-gray-800 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:border-red-600 outline-none transition-all"
-                                />
-                            </div>
-
-                            {/* Condition */}
-                            <div>
-                                <label className="block text-red-600 text-sm font-bold mb-2 uppercase tracking-wide">Condition</label>
-                                <select
-                                    name="condition"
-                                    className="w-full bg-black border-2 border-gray-800 rounded-lg px-4 py-3 text-white focus:border-red-600 outline-none transition-all"
-                                >
-                                    <option value="Used">Used</option>
-                                    <option value="New">New</option>
-                                    <option value="Reconditioned">Reconditioned</option>
-                                </select>
-                            </div>
-
-                            {/* Fuel Type */}
-                            <div>
-                                <label className="block text-red-600 text-sm font-bold mb-2 uppercase tracking-wide">Fuel Type</label>
-                                <select
-                                    name="fuelType"
-                                    className="w-full bg-black border-2 border-gray-800 rounded-lg px-4 py-3 text-white focus:border-red-600 outline-none transition-all"
-                                >
-                                    <option value="Petrol">Petrol</option>
-                                    <option value="Diesel">Diesel</option>
-                                    <option value="Octane">Octane</option>
-                                    <option value="Hybrid">Hybrid</option>
-                                    <option value="Electric">Electric</option>
-                                </select>
-                            </div>
-
-                            {/* Transmission */}
-                            <div>
-                                <label className="block text-red-600 text-sm font-bold mb-2 uppercase tracking-wide">Transmission</label>
-                                <select
-                                    name="transmission"
-                                    className="w-full bg-black border-2 border-gray-800 rounded-lg px-4 py-3 text-white focus:border-red-600 outline-none transition-all"
-                                >
-                                    <option value="Automatic">Automatic</option>
-                                    <option value="Manual">Manual</option>
-                                </select>
-                            </div>
-
-                            {/* Mileage */}
-                            <div>
-                                <label className="block text-red-600 text-sm font-bold mb-2 uppercase tracking-wide">Mileage (km)</label>
-                                <input
-                                    name="mileage"
-                                    type="number"
-                                    placeholder="35000"
-                                    required
-                                    className="w-full bg-black border-2 border-gray-800 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:border-red-600 outline-none transition-all"
-                                />
-                            </div>
-
-                            {/* Engine Capacity */}
-                            <div>
-                                <label className="block text-red-600 text-sm font-bold mb-2 uppercase tracking-wide">Engine Capacity</label>
-                                <input
-                                    name="engineCapacity"
-                                    type="text"
-                                    placeholder="1.8L"
-                                    required
-                                    className="w-full bg-black border-2 border-gray-800 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:border-red-600 outline-none transition-all"
-                                />
-                            </div>
-
-                            {/* Color */}
-                            <div>
-                                <label className="block text-red-600 text-sm font-bold mb-2 uppercase tracking-wide">Color</label>
-                                <input
-                                    name="color"
-                                    type="text"
-                                    placeholder="White"
-                                    required
-                                    className="w-full bg-black border-2 border-gray-800 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:border-red-600 outline-none transition-all"
-                                />
-                            </div>
-
-                            {/* Country */}
-                            <div>
-                                <label className="block text-red-600 text-sm font-bold mb-2 uppercase tracking-wide">Country</label>
-                                <input
-                                    name="locationCountry"
-                                    type="text"
-                                    defaultValue="Bangladesh"
-                                    className="w-full bg-black border-2 border-gray-800 rounded-lg px-4 py-3 text-white focus:border-red-600 outline-none transition-all"
-                                />
-                            </div>
-
-                            {/* City */}
-                            <div>
-                                <label className="block text-red-600 text-sm font-bold mb-2 uppercase tracking-wide">City</label>
-                                <input
-                                    name="locationCity"
-                                    type="text"
-                                    placeholder="Dhaka"
-                                    required
-                                    className="w-full bg-black border-2 border-gray-800 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:border-red-600 outline-none transition-all"
-                                />
-                            </div>
-
-                            {/* Car Photo */}
-                            <div className="md:col-span-2">
-                                <label className="block text-red-600 text-sm font-bold mb-2 uppercase tracking-wide">Car Photo</label>
-                                <div className="relative border-2 border-dashed border-gray-800 rounded-lg overflow-hidden hover:border-red-600 transition-all group">
+                            <div className="relative border-2 border-dashed border-gray-800 rounded-lg p-6 min-h-[180px] flex flex-wrap gap-4 items-center justify-center hover:border-red-600 transition-all group">
+                                {imageFiles.length < MAX_IMAGES && (
                                     <input
-                                        name="imageFile"
                                         type="file"
                                         accept="image/*"
-                                        required
-                                        onChange={handleImagePreview}
-                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                        multiple
+                                        onChange={handleImageChange}
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
                                     />
+                                )}
 
-                                    {selectedImage ? (
-                                        <div className="relative">
-                                            <img src={selectedImage} alt="Preview" className="w-full h-64 object-cover" />
-                                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <p className="text-white font-bold">Click to change image</p>
+                                {selectedImages.length > 0 ? (
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 w-full z-30">
+                                        {selectedImages.map((img, index) => (
+                                            <div key={index} className="relative group/img h-24 rounded-xl overflow-hidden border border-red-600/30">
+                                                <img src={img} alt="Preview" className="w-full h-full object-cover" />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeImage(index)}
+                                                    className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full hover:bg-red-700 transition-colors"
+                                                >
+                                                    <FaTimes size={10} />
+                                                </button>
                                             </div>
-                                        </div>
-                                    ) : (
-                                        <div className="p-12 text-center">
-                                            <FaUpload className="text-5xl text-gray-700 mx-auto mb-4 group-hover:text-red-600 transition-colors" />
-                                            <p className="text-gray-500 font-semibold">Click to upload or drag and drop car photo</p>
-                                            <p className="text-gray-700 text-sm mt-2">PNG, JPG up to 10MB</p>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Description */}
-                            <div className="md:col-span-2">
-                                <label className="block text-red-600 text-sm font-bold mb-2 uppercase tracking-wide">Description</label>
-                                <textarea
-                                    name="description"
-                                    rows="4"
-                                    placeholder="Describe your car features, modifications, service history..."
-                                    className="w-full bg-black border-2 border-gray-800 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:border-red-600 outline-none transition-all resize-none"
-                                ></textarea>
-                            </div>
-
-                            {/* Price Negotiable */}
-                            <div className="md:col-span-2 flex items-center gap-3 p-4 bg-black/50 rounded-lg border border-gray-800">
-                                <input
-                                    name="priceNegotiable"
-                                    type="checkbox"
-                                    id="neg"
-                                    className="w-5 h-5 accent-red-600 cursor-pointer"
-                                />
-                                <label htmlFor="neg" className="text-gray-300 font-semibold cursor-pointer select-none">
-                                    Price is Negotiable
-                                </label>
-                            </div>
-
-                            {/* Submit Button */}
-                            <div className="md:col-span-2 mt-6">
-                                <button
-                                    type="submit"
-                                    disabled={uploading}
-                                    className="group relative w-full bg-gradient-to-r from-red-600 to-red-700 text-white font-black uppercase py-5 rounded-xl transition-all duration-300 hover:scale-[1.02] shadow-2xl shadow-red-900/40 disabled:from-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed overflow-hidden"
-                                >
-                                    <span className="relative z-10 flex items-center justify-center gap-2">
-                                        {uploading ? (
-                                            <>
-                                                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                                Submitting...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <FaCar className="text-xl" />
-                                                Post Vehicle for Approval
-                                            </>
+                                        ))}
+                                        {imageFiles.length < MAX_IMAGES && (
+                                            <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-800 rounded-xl h-24 text-gray-500">
+                                                <FaUpload size={16} />
+                                                <span className="text-[10px] mt-1 font-bold">Add More</span>
+                                            </div>
                                         )}
-                                    </span>
-                                    {!uploading && (
-                                        <div className="absolute inset-0 bg-gradient-to-r from-red-700 to-red-800 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                    )}
-                                </button>
+                                    </div>
+                                ) : (
+                                    <div className="text-center pointer-events-none">
+                                        <FaUpload className="text-4xl text-gray-700 mx-auto mb-2 group-hover:text-red-600 transition-colors" />
+                                        <p className="text-gray-500 text-sm font-semibold">Click to upload landscape images</p>
+                                    </div>
+                                )}
                             </div>
+                        </div>
+
+                        <div className="md:col-span-2">
+                            <label className="block text-red-600 text-sm font-bold mb-2 uppercase tracking-wide">Description</label>
+                            <textarea name="description" rows="4" placeholder="Describe your car's features, history, and current condition..." className="w-full bg-black border-2 border-gray-800 rounded-lg px-4 py-3 text-white focus:border-red-600 outline-none transition-all resize-none"></textarea>
+                        </div>
+
+                        <div className="md:col-span-2 flex items-center gap-3 p-4 bg-black/50 rounded-lg border border-gray-800">
+                            <input name="priceNegotiable" type="checkbox" id="neg" className="w-5 h-5 accent-red-600 cursor-pointer" />
+                            <label htmlFor="neg" className="text-gray-300 font-semibold cursor-pointer">Price is Negotiable</label>
+                        </div>
+
+                        <div className="md:col-span-2 mt-4">
+                            <button
+                                type="submit"
+                                disabled={uploading}
+                                className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white font-black uppercase py-5 rounded-xl transition-all hover:scale-[1.01] disabled:opacity-50"
+                            >
+                                {uploading ? "Submitting..." : "Post Vehicle for Approval"}
+                            </button>
                         </div>
                     </form>
                 </div>
