@@ -46,6 +46,7 @@ const Navbar = () => {
                     <ul className="menu menu-horizontal px-1 text-white">
                         <li><NavLink href="/">Home</NavLink></li>
                         <li><NavLink href="/all-cars">All Cars</NavLink></li>
+                        <li><NavLink href="/add-car">Add Car</NavLink></li>
                     </ul>
                 </div>
 

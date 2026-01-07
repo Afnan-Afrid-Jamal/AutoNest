@@ -59,7 +59,7 @@ const CarDetails = async ({ params }) => {
                 <div className="container mx-auto px-4 lg:px-10">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
 
-                        {/* বাম পাশ (images and description) - ৮ কলাম */}
+
                         <div className="lg:col-span-8 space-y-16">
 
                             {/* Image Gallery Section */}

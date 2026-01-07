@@ -217,11 +217,16 @@ const AddCarForm = () => {
 
                         {/* Image Section */}
                         <div className="md:col-span-2">
-                            <div className="flex justify-between items-center mb-1">
+                            <div className="flex justify-between items-center mb-3">
                                 <label className="text-red-600 text-sm font-bold uppercase tracking-wide">Car Photos (Max 3)</label>
+                                <div className="flex items-center gap-2 text-gray-400 text-xs italic">
+                                    <div className="w-2 h-2 bg-red-600 rounded-full shadow-[0_0_5px_rgba(220,38,38,1)]"></div>
+                                    <span>Note: The <strong className="text-red-500">first uploaded image</strong> will be displayed as the main cover.</span>
+                                </div>
                                 <span className={`text-xs font-bold ${imageFiles.length === MAX_IMAGES ? 'text-red-500' : 'text-gray-500'}`}>
                                     {imageFiles.length} / {MAX_IMAGES} Selected
                                 </span>
+
                             </div>
 
                             <p className="text-gray-500 text-[10px] md:text-[11px] uppercase tracking-widest mb-4 font-bold flex flex-wrap items-center gap-3 gap-y-2">
