@@ -1,12 +1,16 @@
+'use client'
 import Link from 'next/link'
 import Image from 'next/image'
 import WebsiteLogo from '../../../../public/Logo.png'
 import NavLink from './NavLink'
 import { MdLogin } from 'react-icons/md'
-import { FaUserPlus } from 'react-icons/fa'
-
+import { FaUser, FaUserPlus } from 'react-icons/fa'
+import { useContext } from 'react'
+import { AuthContext } from '../../../lib/AuthContext'
 
 const Navbar = () => {
+    const { user } = useContext(AuthContext);
+
     return (
         <div className="bg-black sticky top-0 z-50">
             {/* Container */}
@@ -51,19 +55,47 @@ const Navbar = () => {
                 </div>
 
                 {/* RIGHT */}
+                <div className="navbar-end flex gap-2 sm:gap-2 relative">
+                    {user ? (
+                        <div className="dropdown dropdown-end relative">
+                            <div tabIndex={0} role="button" className="avatar cursor-pointer">
+                                <div className="w-10 h-10 rounded-full border-2 border-orange-500 overflow-hidden">
+                                    {user.photoURL ? (
+                                        <Image
+                                            src={user.photoURL}
+                                            alt={user.displayName || "User"}
+                                            width={40}
+                                            height={40}
+                                            className="object-cover"
+                                        />
+                                    ) : (
+                                        <FaUser size={25} className="text-white" />
+                                    )}
+                                </div>
+                            </div>
+                            <ul
+                                tabIndex="-1"
+                                className="dropdown-content absolute right-0 mt-2 menu border border-red-500 rounded-box z-50 w-52 p-2 shadow-sm"
+                            >
+                                <li><a>Item 1</a></li>
+                                <li><a>Item 2</a></li>
+                            </ul>
+                        </div>
+                    ) : (
+                        <>
+                            <Link href="/login" className="btn btn-xs md:btn-md">
+                                <MdLogin className="text-lg" />
+                                Login
+                            </Link>
 
-                <div className="navbar-end flex gap-2 sm:gap-2">
-
-                    <Link href="/login" className="btn btn-xs md:btn-md">
-                        <MdLogin className="text-lg" />
-                        Login
-                    </Link>
-
-                    <Link href="/register" className="btn btn-primary btn-xs md:btn-md">
-                        <FaUserPlus className="text-lg" />
-                        Register
-                    </Link>
+                            <Link href="/register" className="btn btn-primary btn-xs md:btn-md">
+                                <FaUserPlus className="text-lg" />
+                                Register
+                            </Link>
+                        </>
+                    )}
                 </div>
+
 
             </div>
         </div>

@@ -1,6 +1,6 @@
 "use server";
 
-import { dbConnect } from "@/lib/dbConnect";
+import { dbConnect } from "@/lib/Utils/actions/dbConnect";
 import { revalidatePath } from "next/cache";
 
 // Add Car

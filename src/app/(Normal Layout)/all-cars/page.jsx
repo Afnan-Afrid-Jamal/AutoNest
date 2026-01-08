@@ -1,4 +1,4 @@
-import { dbConnect } from '@/lib/dbConnect';
+import { dbConnect } from '@/lib/Utils/actions/dbConnect';
 import React from 'react';
 import { FaChevronLeft, FaChevronRight, FaCalendarAlt, FaGasPump } from 'react-icons/fa';
 import Link from 'next/link';

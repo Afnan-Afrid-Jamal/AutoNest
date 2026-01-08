@@ -1,4 +1,4 @@
-import { dbConnect } from '@/lib/dbConnect';
+import { dbConnect } from '@/lib/Utils/actions/dbConnect';
 import React from 'react';
 import { FaStar, FaQuoteLeft, FaUserCircle } from 'react-icons/fa';
 import SubHeading from '../Shared/SubHeading';

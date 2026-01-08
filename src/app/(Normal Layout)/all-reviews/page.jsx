@@ -1,6 +1,6 @@
 import SectionHeading from '@/app/Components/Shared/SectionHeading';
 import SubHeading from '@/app/Components/Shared/SubHeading';
-import { dbConnect } from '@/lib/dbConnect';
+import { dbConnect } from '@/lib/Utils/actions/dbConnect';
 import React from 'react';
 import { FaQuoteLeft, FaStar, FaUserCircle } from 'react-icons/fa';
 

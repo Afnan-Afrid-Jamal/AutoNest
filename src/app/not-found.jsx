@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import React from 'react';
 import { FaHome, FaSearch, FaBolt, FaCar, FaEnvelope, FaTags } from 'react-icons/fa';
 
@@ -34,40 +35,23 @@ const NotFoundPage = () => {
 
                     {/* Action Buttons */}
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-                        <button className="group relative px-8 py-4 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-red-900/50">
+                        <Link href={"/"} className="group relative px-8 py-4 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-red-900/50">
                             <span className="relative z-10 flex items-center gap-2">
                                 <FaHome className="w-5 h-5" />
                                 Back to Home
                             </span>
                             <div className="absolute inset-0 bg-gradient-to-r from-red-700 to-red-800 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        </button>
+                        </Link>
 
-                        <button className="group relative px-8 py-4 bg-transparent border-2 border-red-600 text-white font-bold rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 hover:border-red-500">
+                        <Link href={"/all-cars"} className="group relative px-8 py-4 bg-transparent border-2 border-red-600 text-white font-bold rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 hover:border-red-500">
                             <span className="relative z-10 flex items-center gap-2">
                                 <FaSearch className="w-5 h-5" />
                                 Browse Cars
                             </span>
                             <div className="absolute inset-0 bg-red-600 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
-                        </button>
+                        </Link>
                     </div>
 
-                    {/* Quick Links */}
-                    <div className="inline-block">
-                        <p className="text-gray-500 text-sm mb-4 uppercase tracking-wider font-semibold">
-                            Or try these popular pages
-                        </p>
-                        <div className="flex flex-wrap gap-3 justify-center">
-                            <a href="#" className="px-4 py-2 bg-gray-900 border border-gray-800 text-gray-300 rounded-lg hover:border-red-600 hover:text-white transition-all duration-300 text-sm font-medium">
-                                Featured Cars
-                            </a>
-                            <a href="#" className="px-4 py-2 bg-gray-900 border border-gray-800 text-gray-300 rounded-lg hover:border-red-600 hover:text-white transition-all duration-300 text-sm font-medium">
-                                Sell Your Car
-                            </a>
-                            <a href="#" className="px-4 py-2 bg-gray-900 border border-gray-800 text-gray-300 rounded-lg hover:border-red-600 hover:text-white transition-all duration-300 text-sm font-medium">
-                                Contact Us
-                            </a>
-                        </div>
-                    </div>
                 </div>
 
                 {/* Decorative Racing Stripes */}

@@ -1,5 +1,5 @@
 import ImageGallery from '@/app/Components/Car Slider/ImageGallery';
-import { dbConnect } from '@/lib/dbConnect';
+import { dbConnect } from '@/lib/Utils/actions/dbConnect';
 import { ObjectId } from 'mongodb';
 import {
     FaGasPump, FaCogs, FaTachometerAlt,
